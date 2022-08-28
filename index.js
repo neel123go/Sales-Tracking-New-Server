@@ -17,6 +17,7 @@ async function run() {
     try {
         await client.connect();
         const itemsCollection = client.db('Sales_Tracking_new').collection('inventory_items');
+        const queriesCollection = client.db('Sales_Tracking_new').collection('queries');
 
         // get all items
         app.get('/items', async (req, res) => {
@@ -63,6 +64,21 @@ async function run() {
             const result = await itemsCollection.insertOne(item);
             res.send(result);
         })
+
+        // get items by user email
+        app.get('/myItems', async (req, res) => {
+            const email = req.query.email;
+            const cursor = itemsCollection.find({ email: email });
+            const items = await cursor.toArray();
+            res.send(items);
+        });
+
+        // add queries by user
+        app.post('/queries', async (req, res) => {
+            const query = req.body;
+            const result = await queriesCollection.insertOne(query);
+            res.send(result);
+        });
 
     } finally {
         // await client.close();
